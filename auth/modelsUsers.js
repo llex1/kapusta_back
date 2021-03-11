@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
-
+const {
+  Types: { ObjectId },
+} = require("mongoose");
 const { Schema } = mongoose;
 
 const UserSchema = new Schema(
@@ -13,13 +15,13 @@ const UserSchema = new Schema(
     costs: [
       {
         type: ObjectId,
-        ref: costs,
+        ref: "costs",
       }
     ],
     profit: [
       {
         type: ObjectId,
-        ref: profit,
+        ref: "profit",
       }
     ],
   },

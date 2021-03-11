@@ -6,7 +6,8 @@ const authRouter = Router();
 
 authRouter.use(logger("dev"));
 
-authRouter.post("/register", authController.validationUser,authController.registration);
+authRouter.post("/register", authController.registration);
+// authRouter.post("/register", authController.validationUser,authController.registration);
 
 
 // Відправка на пошту, та підтвердження емейла
