@@ -1,3 +1,4 @@
+const { string } = require("joi");
 const mongoose = require("mongoose");
 const {
   Types: { ObjectId },
@@ -8,9 +9,12 @@ const UserSchema = new Schema(
   {
     email: { type: String, required: true, unique: true, validate: (value) => value.includes("@") },
     password: { type: String, required: true },
-    token: {
-      type: String,
-    },
+    tokenid: [
+      { 
+        type: ObjectId,
+        ref: "tokens",
+      }
+    ],
     verificationToken: String,
     costs: [
       {

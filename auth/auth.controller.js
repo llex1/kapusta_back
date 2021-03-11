@@ -6,7 +6,8 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const sgMail = require("@sendgrid/mail");
 const { v4: uuidv4 } = require("uuid");
-const User = require("./modelsUsers");
+const User = require("./User");
+const Token=require("./Token")
 sgMail.setApiKey(process.env.EMAIL_TOKEN);
 
 class AuthController {
@@ -21,15 +22,20 @@ class AuthController {
         },
         process.env.TOKEN_SECRET
       );
+      const tokens= await Token.create({
+        token: token,
+      })
+
       const user = await User.create({
         email: email,
         password: hashedPassword,
-        token: token,
+
+        tokenid: tokens._id,
         verificationToken: userToken,
       });
-      res.status(201).json({
-        email: email,
-        token: token,
+        res.status(201).json({
+        jwt: token,
+        // user: email,  в роздумі
       });
       next();
     } catch (error) {
@@ -55,7 +61,7 @@ class AuthController {
     const user = await User.findOne({ email });
     try {
       const msg = {
-        to: email, 
+        to: email,
         from: "kapustacorporation@gmail.com",
         subject: "Please verify your account",
         html: `Welcome to our application! To verify your account please go by <a href="http://localhost:8080/auth/confirmed/${user.verificationToken}">link</a>`,
@@ -80,6 +86,39 @@ class AuthController {
     }
     const conectUser = await User.findByIdAndUpdate(user._id, { verificationToken: "" });
     return res.status(200).sendFile(__dirname + "/confirmation/successfully.html");
+  }
+
+  async login(req, res) {
+    const { email, password } = req.body;
+    const user = await User.findOne({
+      email,
+    });
+    if (!user) {
+      return res.status(401).send("Email or password is wrong");
+    }
+    const paswordValid = await bcrypt.compare(password, user.password);
+    if (!paswordValid) {
+      return res.status(401).send("Email or password is wrong");
+    }
+    const token = jwt.sign(
+      {
+        userId: user._id,
+      },
+      process.env.TOKEN_SECRET
+    );
+    const tokens= await Token.create({
+        token: token,
+      })
+    await User.findByIdAndUpdate(user._id, {  $push: {
+      tokenid: tokens._id,
+    }, });
+
+    return res.status(200).json({
+      // user: user.email,  Запоминаєм на фронті
+      jwt: token,
+      costs: user.costs,
+      profit: user.profit,
+    });
   }
 }
 
