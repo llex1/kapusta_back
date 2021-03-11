@@ -7,6 +7,7 @@ const authRouter = Router();
 authRouter.use(logger("dev"));
 
 authRouter.post("/register", authController.registration);
+authRouter.post("/login", authController.login);
 // authRouter.post("/register", authController.validationUser,authController.registration);
 
 
