@@ -31,4 +31,3 @@ const User = mongoose.model("User", UserSchema);
 module.exports = User;
 
 
-authSource=admin&replicaSet=atlas-xgpp7x-shard-0&readPreference=primary&appname=MongoDB%20Compass&ssl=true
