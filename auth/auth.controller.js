@@ -1,6 +1,3 @@
-class AuthController {
-  registration(req, res, next) {
-    res.status("200").send("oK_");
 const {
   Types: { ObjectId },
 } = require("mongoose");
