@@ -13,26 +13,20 @@ sgMail.setApiKey(process.env.EMAIL_TOKEN);
 class AuthController {
   async registration(req, res, next) {
     try {
-      const userToken = uuidv4();
       const { email, password } = req.body;
+      const userToken = uuidv4();
       const hashedPassword = await bcrypt.hash(password, 10);
-      const token = jwt.sign(
-        {
-          userId: password,
-        },
-        process.env.TOKEN_SECRET
-      );
-      const tokens = await Token.create({
-        token: token,
-      });
-
       const user = await User.create({
         email: email,
         password: hashedPassword,
-
-        tokenid: tokens._id,
         verificationToken: userToken,
       });
+      const userId = await User.findOne({ email: email });
+      const token = jwt.sign({ userId: userId._id }, process.env.TOKEN_SECRET);
+      const tokens = await Token.create({
+        token: token,
+      });
+      const updUser= await User.findByIdAndUpdate(userId._id, {tokenid: tokens._id})
       res.status(201).json({
         jwt: token,
         // user: email,  в роздумі
@@ -80,19 +74,12 @@ class AuthController {
       verificationToken,
     });
     if (!user) {
-      return res
-        .status(404)
-        .sendFile(
-          __dirname + "/confirmation/unsuccessful.html",
-          __dirname + "/confirmation/unsuccessful.css"
-        );
+      return res.status(404).sendFile(__dirname + "/confirmation/unsuccessful.html");
     }
     const conectUser = await User.findByIdAndUpdate(user._id, {
       verificationToken: "",
     });
-    return res
-      .status(200)
-      .sendFile(__dirname + "/confirmation/successfully.html");
+    return res.status(200).sendFile(__dirname + "/confirmation/successfully.html");
   }
 
   async login(req, res) {
