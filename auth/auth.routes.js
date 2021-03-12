@@ -8,6 +8,7 @@ authRouter.use(logger("dev"));
 
 authRouter.post("/register", authController.registration);
 authRouter.post("/login", authController.login);
+authRouter.post('/logout', authController.authorize, authController.logout);
 // authRouter.post("/register", authController.validationUser,authController.registration);
 
 

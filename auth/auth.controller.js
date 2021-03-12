@@ -7,7 +7,7 @@ const bcrypt = require("bcryptjs");
 const sgMail = require("@sendgrid/mail");
 const { v4: uuidv4 } = require("uuid");
 const User = require("./User");
-const Token=require("./Token")
+const Token = require("./Token");
 sgMail.setApiKey(process.env.EMAIL_TOKEN);
 
 class AuthController {
@@ -22,9 +22,9 @@ class AuthController {
         },
         process.env.TOKEN_SECRET
       );
-      const tokens= await Token.create({
+      const tokens = await Token.create({
         token: token,
-      })
+      });
 
       const user = await User.create({
         email: email,
@@ -33,7 +33,7 @@ class AuthController {
         tokenid: tokens._id,
         verificationToken: userToken,
       });
-        res.status(201).json({
+      res.status(201).json({
         jwt: token,
         // user: email,  в роздумі
       });
@@ -82,10 +82,17 @@ class AuthController {
     if (!user) {
       return res
         .status(404)
-        .sendFile(__dirname + "/confirmation/unsuccessful.html", __dirname + "/confirmation/unsuccessful.css");
+        .sendFile(
+          __dirname + "/confirmation/unsuccessful.html",
+          __dirname + "/confirmation/unsuccessful.css"
+        );
     }
-    const conectUser = await User.findByIdAndUpdate(user._id, { verificationToken: "" });
-    return res.status(200).sendFile(__dirname + "/confirmation/successfully.html");
+    const conectUser = await User.findByIdAndUpdate(user._id, {
+      verificationToken: "",
+    });
+    return res
+      .status(200)
+      .sendFile(__dirname + "/confirmation/successfully.html");
   }
 
   async login(req, res) {
@@ -106,12 +113,14 @@ class AuthController {
       },
       process.env.TOKEN_SECRET
     );
-    const tokens= await Token.create({
-        token: token,
-      })
-    await User.findByIdAndUpdate(user._id, {  $push: {
-      tokenid: tokens._id,
-    }, });
+    const tokens = await Token.create({
+      token: token,
+    });
+    await User.findByIdAndUpdate(user._id, {
+      $push: {
+        tokenid: tokens._id,
+      },
+    });
 
     return res.status(200).json({
       // user: user.email,  Запоминаєм на фронті
@@ -119,6 +128,48 @@ class AuthController {
       costs: user.costs,
       profit: user.profit,
     });
+  }
+  async authorize(req, res, next) {
+    const authorizationHeader = req.get("Authorization");
+    if (!authorizationHeader) {
+      return res.status(401).send({
+        message: "Not authorized",
+      });
+    }
+    const userToken = authorizationHeader.replace("Bearer ", "");
+    try {
+      const payload = await jwt.verify(userToken, process.env.TOKEN_SECRET);
+      const { userId } = payload;
+      const user = await User.findById(userId);
+      const requestedToken = await Token.findOne({
+        token: userToken,
+      });
+      console.log("requestedToken", requestedToken._id);
+      if (!user) {
+        return res.status(401).send({
+          message: "Not authorized",
+        });
+      }
+      req.user = user;
+      req.tokenId = requestedToken._id;
+      next();
+    } catch (error) {
+      return res.status(401).send(error.message);
+    }
+  }
+  async logout(req, res) {
+    try {
+      const { _id } = req.user;
+      await Token.deleteOne({ _id: req.tokenId });
+      await User.findByIdAndUpdate(_id, { $pull: { tokenid: req.tokenId } });
+      return res.status(200).send({
+        message: "User logged out",
+      });
+    } catch (error) {
+      return res.status(401).send({
+        message: "Not authorized",
+      });
+    }
   }
 }
 
