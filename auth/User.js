@@ -10,7 +10,7 @@ const UserSchema = new Schema(
     email: { type: String, required: true, unique: true, validate: (value) => value.includes("@") },
     password: { type: String, required: true },
     tokenid: [
-      { 
+      {
         type: ObjectId,
         ref: "tokens",
       }
