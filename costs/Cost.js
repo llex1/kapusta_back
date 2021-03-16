@@ -7,6 +7,10 @@ const { Schema } = mongoose;
 
 const CostSchema = new Schema({
   date: {
+    type: String,
+    required: true,
+  },
+  month: {
     type: Number,
     required: true,
   },
