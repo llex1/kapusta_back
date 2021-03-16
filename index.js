@@ -5,6 +5,7 @@ const cors = require("cors");
 const mongoose = require("mongoose");
 //app module
 const authRouter = require("./auth/auth.routes");
+const apiBalanceRouter=require("./apiBalance/apiBalance.routes")
 
 
 class Server {
@@ -31,6 +32,7 @@ class Server {
   }
   initRoutes() {
     this.server.use("/auth", authRouter);
+    this.server.use("/api/balance",  apiBalanceRouter)
     // this.server.use("/", express.static(__dirname + "/public/"));
   }
   async initDb() {

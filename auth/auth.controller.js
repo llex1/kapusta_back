@@ -20,13 +20,14 @@ class AuthController {
         email: email,
         password: hashedPassword,
         verificationToken: userToken,
+        balance: 0,
       });
       const userId = await User.findOne({ email: email });
       const token = jwt.sign({ userId: userId._id }, process.env.TOKEN_SECRET);
       const tokens = await Token.create({
         token: token,
       });
-      const updUser= await User.findByIdAndUpdate(userId._id, {tokenid: tokens._id})
+      const updUser = await User.findByIdAndUpdate(userId._id, { tokenid: tokens._id });
       res.status(201).json({
         jwt: token,
         // user: email,  в роздумі
@@ -131,7 +132,7 @@ class AuthController {
       const requestedToken = await Token.findOne({
         token: userToken,
       });
-      console.log("requestedToken", requestedToken._id);
+      // console.log("requestedToken", requestedToken._id);
       if (!user) {
         return res.status(401).send({
           message: "Not authorized",
