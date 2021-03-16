@@ -6,6 +6,8 @@ const mongoose = require("mongoose");
 const logger = require("morgan");
 //app module
 const authRouter = require("./auth/auth.routes");
+const apiBalanceRouter=require("./apiBalance/apiBalance.routes")
+
 const costsRouter = require("./costs/costs.routes");
 
 class Server {
@@ -33,6 +35,7 @@ class Server {
   }
   initRoutes() {
     this.server.use("/auth", authRouter);
+    this.server.use("/api/balance",  apiBalanceRouter)
     this.server.use("/api/costs", costsRouter);
     // this.server.use("/", express.static(__dirname + "/public/"));
   }

@@ -15,6 +15,7 @@ const UserSchema = new Schema(
         ref: "tokens",
       }
     ],
+    balance: Number,
     verificationToken: String,
     costs: [
       {
