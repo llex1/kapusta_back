@@ -4,6 +4,8 @@ const {
 } = require("mongoose");
 const User = require("../auth/User");
 const Joi = require("joi");
+const moment = require("moment");
+require("moment/locale/ru");
 
 async function addCosts(req, res) {
   try {
@@ -91,6 +93,25 @@ async function getCostsByMonth(req, res) {
     res.status(400).send(error);
   }
 }
+async function getCostsByHalfYear(req, res) {
+  try {
+    const {
+      params: { costMonth },
+    } = req;
+       let array = [];
+    for (let i = 0; i < 6; i++) {
+      let currentMonth = +costMonth - i;
+      const costsByMonth = await Cost.find({ month: `${currentMonth}` });
+      if (costsByMonth[0]) {
+        let forMonths = costsByMonth.reduce((acc, el) => acc + el.sum, 0);
+        array.push({ month: moment(`${costsByMonth[0].date}`).format("MMMM"), sum: forMonths });
+      }
+    }
+    res.json(array);
+  } catch (error) {
+    res.status(400).send(error);
+  }
+}
 
 module.exports = {
   addCosts,
@@ -99,4 +120,5 @@ module.exports = {
   deleteCosts,
   getCostsByDate,
   getCostsByMonth,
+  getCostsByHalfYear,
 };
