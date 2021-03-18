@@ -26,6 +26,10 @@ const CostSchema = new Schema({
     type: Number,
     required: true,
   },
+  userId:{
+    type: String,
+    required: true,
+  }
 });
 
 const Cost = mongoose.model("Cost", CostSchema);
