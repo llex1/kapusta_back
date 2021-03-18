@@ -16,7 +16,7 @@ async function addCosts(req, res) {
       description: body.description,
       category: body.category,
       sum: body.sum,
-      userId:user._id
+      userId: user._id,
     });
     await User.findByIdAndUpdate(user._id, {
       $push: {
@@ -100,17 +100,20 @@ async function getCostsByHalfYear(req, res) {
       params: { costMonth },
       user: { _id },
     } = req;
-       let array = [];
-       const costsByMonth = await Cost.find({ userId: _id });
+    let array = [];
+    const costsByMonth = await Cost.find({ userId: _id });
     for (let i = 0; i < 6; i++) {
       let currentMonth = +costMonth - i;
-     let forMonths= costsByMonth.reduce((acc, el)=>{
-        // console.log(currentMonth,+el.month);
-        if (currentMonth,+el.month) {
-         acc + el.sum;
+      let forMonths = costsByMonth.reduce((acc, el) => {
+         if (currentMonth !== +el.month) {
+          // console.log(acc, +el.sum);
+          return
         }
-      },0 )
-      array.push({ month: moment(`${costsByMonth[0].date}`).format("MMMM"), sum: forMonths });
+        console.log(acc);
+        return acc
+      }, 0);
+      console.log(forMonths);
+      // array.push({ month: moment(`${costsByMonth[0].date}`).format("MMMM"), sum: forMonths });
     }
     res.json(array);
   } catch (error) {
