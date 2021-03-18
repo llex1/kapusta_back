@@ -1,7 +1,7 @@
-const Cost = require("./Cost");
 const {
   Types: { ObjectId },
 } = require("mongoose");
+const Cost = require("./Cost");
 const User = require("../auth/User");
 const Joi = require("joi");
 const moment = require("moment");
@@ -43,7 +43,6 @@ function validateAddCosts(req, res, next) {
   if (validationResult.error) {
     return res.status(400).send(validationResult.error);
   }
-  console.log("validationResult", validationResult);
   next();
 }
 
@@ -106,11 +105,16 @@ async function getCostsByHalfYear(req, res) {
       let currentMonth = costMonth - i;
 
       let forMonths = costsByMonth.reduce((acc, el) => {
-         if (currentMonth === el.month) {
-        return acc+el.sum
-        }else{return acc}
+        if (currentMonth === el.month) {
+          return acc + el.sum;
+        } else {
+          return acc;
+        }
       }, 0);
-      array.push({ month: moment(`${currentMonth}`).format("MMMM"), sum: forMonths });
+      array.push({
+        month: moment(`${currentMonth}`).format("MMMM"),
+        sum: forMonths,
+      });
     }
     res.json(array);
   } catch (error) {

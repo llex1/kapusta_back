@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const { Schema } = mongoose;
 
-const CostSchema = new Schema({
+const ProfitSchema = new Schema({
   date: {
     type: String,
     required: true,
@@ -23,12 +23,8 @@ const CostSchema = new Schema({
     type: Number,
     required: true,
   },
-  userId:{
-    type: String,
-    required: true,
-  }
 });
 
-const Cost = mongoose.model("Cost", CostSchema);
+const Profit = mongoose.model("Profit", ProfitSchema);
 
-module.exports = Cost;
+module.exports = Profit;

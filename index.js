@@ -9,6 +9,7 @@ const authRouter = require("./auth/auth.routes");
 const apiBalanceRouter=require("./apiBalance/apiBalance.routes")
 const Report=require("./report/report.routes")
 const costsRouter = require("./costs/costs.routes");
+const profitRouter = require("./profit/profit.routes");
 
 class Server {
   server = null;
@@ -35,9 +36,10 @@ class Server {
   }
   initRoutes() {
     this.server.use("/auth", authRouter);
-    this.server.use("/api/balance",  apiBalanceRouter)
+    this.server.use("/api/balance", apiBalanceRouter);
     this.server.use("/api/costs", costsRouter);
     this.server.use("/api/report", Report);
+    this.server.use("/api/profit", profitRouter);
     // this.server.use("/", express.static(__dirname + "/public/"));
   }
   async initDb() {
