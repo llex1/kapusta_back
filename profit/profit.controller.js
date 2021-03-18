@@ -1,16 +1,16 @@
 const {
   Types: { ObjectId },
 } = require("mongoose");
-const Cost = require("./Cost");
+const Profit = require("./Profit");
 const User = require("../auth/User");
 const Joi = require("joi");
 const moment = require("moment");
 require("moment/locale/ru");
 
-async function addCosts(req, res) {
+async function addProfit(req, res) {
   try {
     const { body, user } = req;
-    const newCosts = await Cost.create({
+    const newProfit = await Profit.create({
       date: body.date,
       month: body.month,
       description: body.description,
@@ -19,16 +19,16 @@ async function addCosts(req, res) {
     });
     await User.findByIdAndUpdate(user._id, {
       $push: {
-        costs: newCosts._id,
+        profit: newProfit._id,
       },
     });
-    res.json(newCosts);
+    res.json(newProfit);
   } catch (error) {
     res.status(400).send(error.message);
   }
 }
 
-function validateAddCosts(req, res, next) {
+function validateAddProfit(req, res, next) {
   const validationRules = Joi.object({
     date: Joi.string().required(),
     month: Joi.number().required(),
@@ -45,16 +45,20 @@ function validateAddCosts(req, res, next) {
   next();
 }
 
-async function deleteCosts(req, res) {
+async function deleteProfit(req, res) {
   try {
     const {
-      params: { costsId },
+      params: { profitId },
     } = req;
-    const deletedCosts = await Cost.findByIdAndDelete(costsId);
-    if (!deletedCosts) {
-      return res.status(400).send("Расход не найден");
+    const deletedProfit = await Profit.findByIdAndDelete(profitId);
+    if (!deletedProfit) {
+      return res.status(400).send("Доход не найден");
     }
-    res.status(200).send(`${deletedCosts.description} был успешно удалён`);
+    res
+      .status(200)
+      .send(
+        `${deletedProfit.description} за ${deletedProfit.date} был успешно удалён`
+      );
   } catch (error) {
     res.status(400).send(error.message);
   }
@@ -62,49 +66,49 @@ async function deleteCosts(req, res) {
 
 function validateId(req, res, next) {
   const {
-    params: { costsId },
+    params: { profitId },
   } = req;
 
-  if (!ObjectId.isValid(costsId)) res.status(400).send("Your id is not valid");
+  if (!ObjectId.isValid(profitId)) res.status(400).send("Your id is not valid");
   next();
 }
 
-async function getCostsByDate(req, res) {
+async function getProfitByDate(req, res) {
   try {
     const {
-      params: { costDate },
+      params: { profitDate },
     } = req;
 
-    const costsByDate = await Cost.find({ date: costDate });
-    res.json(costsByDate);
+    const profitByDate = await Profit.find({ date: profitDate });
+    res.json(profitByDate);
   } catch (error) {
     res.status(400).send(error);
   }
 }
-async function getCostsByMonth(req, res) {
+async function getProfitByMonth(req, res) {
   try {
     const {
-      params: { costMonth },
+      params: { profitMonth },
     } = req;
-    const costsByMonth = await Cost.find({ month: costMonth });
-    res.json(costsByMonth);
+    const profitByMonth = await Profit.find({ month: profitMonth });
+    res.json(profitByMonth);
   } catch (error) {
     res.status(400).send(error);
   }
 }
-async function getCostsByHalfYear(req, res) {
+async function getProfitByHalfYear(req, res) {
   try {
     const {
-      params: { costMonth },
+      params: { profitMonth },
     } = req;
     let array = [];
     for (let i = 0; i < 6; i++) {
-      let currentMonth = +costMonth - i;
-      const costsByMonth = await Cost.find({ month: `${currentMonth}` });
-      if (costsByMonth[0]) {
-        let forMonths = costsByMonth.reduce((acc, el) => acc + el.sum, 0);
+      let currentMonth = +profitMonth - i;
+      const profitByMonth = await Profit.find({ month: `${currentMonth}` });
+      if (profitByMonth[0]) {
+        let forMonths = profitByMonth.reduce((acc, el) => acc + el.sum, 0);
         array.push({
-          month: moment(`${costsByMonth[0].date}`).format("MMMM"),
+          month: moment(`${profitByMonth[0].date}`).format("MMMM"),
           sum: forMonths,
         });
       }
@@ -116,11 +120,11 @@ async function getCostsByHalfYear(req, res) {
 }
 
 module.exports = {
-  addCosts,
-  validateAddCosts,
+  addProfit,
+  validateAddProfit,
   validateId,
-  deleteCosts,
-  getCostsByDate,
-  getCostsByMonth,
-  getCostsByHalfYear,
+  deleteProfit,
+  getProfitByDate,
+  getProfitByMonth,
+  getProfitByHalfYear,
 };

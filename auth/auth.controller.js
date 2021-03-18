@@ -132,7 +132,6 @@ class AuthController {
       const requestedToken = await Token.findOne({
         token: userToken,
       });
-      // console.log("requestedToken", requestedToken._id);
       if (!user) {
         return res.status(401).send({
           message: "Not authorized",
