@@ -45,19 +45,12 @@ async function getReport(req, res) {
       data.costs += el.sum;
       data.category[el.category] += el.sum;
       if (data.details[el.category][el.description]) {
-        console.log(1);
-        data.details[el.category][el.description] += el.sum;
+         data.details[el.category][el.description] += el.sum;
       } else {
         data.details[el.category][el.description] = el.sum;
       }
     }
   });
-  // const profit = await Profit.find({userId:req.user._id})
-  // profit.map(el=>{
-  //   if(el.month===+Month){
-  //     data.profit+=el.sum
-  //   }
-  // })
   res.json({
     summary: {
       costs: data.costs,
@@ -69,34 +62,3 @@ async function getReport(req, res) {
 }
 
 module.exports = { getReport };
-
-//?GET kapusta.fun/api/report/costs/?month=число
-//* {
-//*   summary: {
-//*               costs: число
-//*               profit:  число
-//*             }
-//*   category: [
-//*              { "продукти": 5000}
-//*              { "алкоголь": 200}
-//*              { "развлечение": 3400}
-//*                и т.д. ....
-//*             ]
-//*   details:  [
-//*                 ДЕТАЛІ ПО "ПРОДУКТАХ" (ЗА УМОВЧЕННЯМ)
-//*                 ВІДСОРТОВАНИЙ НА ЗМЕНШЕННЯ
-//*               { "свинина": 980}
-//*               { "говядина": 500}
-//*               { "курица": 230}
-//*                и т.д. ....
-//*             ]
-//?GET kapusta.fun/api/report/costs/?month=число&category=рядок
-//*   details:  [
-//*                 ДЕТАЛІ ПО ВКАЗАНІЙ КАТЕГОРІЇ
-//*                 ВІДСОРТОВАНИЙ НА ЗМЕНШЕННЯ
-//*               { "свинина": 980}
-//*               { "говядина": 500}
-//*               { "курица": 230}
-//*                и т.д. ....
-//*             ]
-//!<---{message: "error message"}
