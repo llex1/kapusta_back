@@ -23,8 +23,15 @@ costsRouter.get(
 );
 costsRouter.get(
   "/month/:costMonth",
-  authController.authorize,
+   authController.authorize,
   costsController.getCostsByMonth
 );
+costsRouter.get(
+  "/half-year/:costMonth",
+   authController.authorize,
+  costsController.getCostsByHalfYear
+);
+
+
 
 module.exports = costsRouter;
