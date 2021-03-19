@@ -23,6 +23,10 @@ const ProfitSchema = new Schema({
     type: Number,
     required: true,
   },
+  userId: {
+    type: String,
+    required: true,
+  },
 });
 
 const Profit = mongoose.model("Profit", ProfitSchema);

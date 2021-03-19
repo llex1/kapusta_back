@@ -16,6 +16,7 @@ async function addProfit(req, res) {
       description: body.description,
       category: body.category,
       sum: body.sum,
+      userId: user._id,
     });
     await User.findByIdAndUpdate(user._id, {
       $push: {
@@ -35,6 +36,7 @@ function validateAddProfit(req, res, next) {
     description: Joi.string().required(),
     category: Joi.string().required(),
     sum: Joi.number().required(),
+    userId: Joi.string(),
   });
 
   const validationResult = validationRules.validate(req.body);
@@ -77,9 +79,10 @@ async function getProfitByDate(req, res) {
   try {
     const {
       params: { profitDate },
+      user: { _id },
     } = req;
 
-    const profitByDate = await Profit.find({ date: profitDate });
+    const profitByDate = await Profit.find({ userId: _id, date: profitDate });
     res.json(profitByDate);
   } catch (error) {
     res.status(400).send(error);
@@ -89,8 +92,12 @@ async function getProfitByMonth(req, res) {
   try {
     const {
       params: { profitMonth },
+      user: { _id },
     } = req;
-    const profitByMonth = await Profit.find({ month: profitMonth });
+    const profitByMonth = await Profit.find({
+      userId: _id,
+      month: profitMonth,
+    });
     res.json(profitByMonth);
   } catch (error) {
     res.status(400).send(error);
