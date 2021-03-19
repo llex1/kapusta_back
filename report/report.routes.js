@@ -7,7 +7,7 @@ const reportRouter = Router();
 
 
 reportRouter.get(
-  "/cost/:Month",
+  "/:Month",
   authController.authorize,
   reportController.getReport
 );

@@ -10,7 +10,7 @@ require("moment/locale/ru");
 async function addProfit(req, res) {
   try {
     const { body, user } = req;
-    const newProfit = await Profit.create({
+        const newProfit = await Profit.create({
       date: body.date,
       month: body.month,
       description: body.description,
@@ -109,16 +109,24 @@ async function getProfitByHalfYear(req, res) {
       params: { profitMonth },
     } = req;
     let array = [];
+    const profitByMonth = await Profit.find({ userId: _id });
     for (let i = 0; i < 6; i++) {
-      let currentMonth = +profitMonth - i;
-      const profitByMonth = await Profit.find({ month: `${currentMonth}` });
-      if (profitByMonth[0]) {
-        let forMonths = profitByMonth.reduce((acc, el) => acc + el.sum, 0);
-        array.push({
-          month: moment(`${profitByMonth[0].date}`).format("MMMM"),
-          sum: forMonths,
-        });
-      }
+      let currentMonth = profitMonth - i;
+      let date;
+      let forMonths = profitByMonth.reduce((acc, el) => {
+        if (currentMonth === el.month) {
+          date = moment(`${el.date}`).format("MMMM");
+          return acc + el.sum;
+        } else {
+          return acc;
+        }
+      }, 0);
+      if(forMonths>0){
+      array.push({
+        month: date,
+        sum: forMonths,
+      });
+    }
     }
     res.json(array);
   } catch (error) {
