@@ -15,7 +15,7 @@ class ApiBalanceController {
       const { balance } = req.body;
       if (balance >= 0) {
          const updateUser=await User.findByIdAndUpdate(req.user._id, {balance:balance})
-        return res.status(200).send("ok");
+        return res.status(200).send({ balance: balance });
       } else {
         return res.status(400).send({ message: "not valid"});
       }

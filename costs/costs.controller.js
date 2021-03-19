@@ -103,18 +103,21 @@ async function getCostsByHalfYear(req, res) {
     const costsByMonth = await Cost.find({ userId: _id });
     for (let i = 0; i < 6; i++) {
       let currentMonth = costMonth - i;
-
+      let date;
       let forMonths = costsByMonth.reduce((acc, el) => {
         if (currentMonth === el.month) {
+          date = moment(`${el.date}`).format("MMMM");
           return acc + el.sum;
         } else {
           return acc;
         }
       }, 0);
-      array.push({
-        month: moment(`${currentMonth}`).format("MMMM"),
-        sum: forMonths,
-      });
+      if (forMonths > 0) {
+        array.push({
+          month: date,
+          sum: forMonths,
+        });
+      }
     }
     res.json(array);
   } catch (error) {
