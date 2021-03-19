@@ -23,7 +23,7 @@ const ProfitSchema = new Schema({
     type: Number,
     required: true,
   },
-  userId:{
+  userId: {
     type: String,
     required: true,
   },

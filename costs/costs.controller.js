@@ -36,6 +36,7 @@ function validateAddCosts(req, res, next) {
     description: Joi.string().required(),
     category: Joi.string().required(),
     sum: Joi.number().required(),
+    userId: Joi.string(),
   });
 
   const validationResult = validationRules.validate(req.body);
@@ -74,9 +75,10 @@ async function getCostsByDate(req, res) {
   try {
     const {
       params: { costDate },
+      user: { _id },
     } = req;
 
-    const costsByDate = await Cost.find({ date: costDate });
+    const costsByDate = await Cost.find({ userId: _id, date: costDate });
     res.json(costsByDate);
   } catch (error) {
     res.status(400).send(error);
@@ -86,8 +88,9 @@ async function getCostsByMonth(req, res) {
   try {
     const {
       params: { costMonth },
+      user: { _id },
     } = req;
-    const costsByMonth = await Cost.find({ month: costMonth });
+    const costsByMonth = await Cost.find({ userId: _id, month: costMonth });
     res.json(costsByMonth);
   } catch (error) {
     res.status(400).send(error);
