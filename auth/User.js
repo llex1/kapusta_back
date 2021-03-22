@@ -1,40 +1,44 @@
-const { string } = require("joi");
-const mongoose = require("mongoose");
+const { string } = require('joi');
+const mongoose = require('mongoose');
 const {
   Types: { ObjectId },
-} = require("mongoose");
+} = require('mongoose');
 const { Schema } = mongoose;
 
 const UserSchema = new Schema(
   {
-    email: { type: String, required: true, unique: true, validate: (value) => value.includes("@") },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+      validate: value => value.includes('@'),
+    },
     password: { type: String, required: true },
     tokenid: [
       {
         type: ObjectId,
-        ref: "tokens",
-      }
+        ref: 'tokens',
+      },
     ],
     balance: Number,
     verificationToken: String,
     costs: [
       {
         type: ObjectId,
-        ref: "costs",
-      }
+        ref: 'costs',
+      },
     ],
     profit: [
       {
         type: ObjectId,
-        ref: "profit",
-      }
+        ref: 'profit',
+      },
     ],
+    avatarURL: String,
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
-const User = mongoose.model("User", UserSchema);
+const User = mongoose.model('User', UserSchema);
 
 module.exports = User;
-
-
