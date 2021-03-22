@@ -18,12 +18,21 @@ async function addCosts(req, res) {
       sum: body.sum,
       userId: user._id,
     });
-    await User.findByIdAndUpdate(user._id, {
-      $push: {
-        costs: newCosts._id,
+    const updateUser = await User.findByIdAndUpdate(
+      user._id,
+      {
+        balance: user.balance - body.sum,
+        $push: {
+          costs: newCosts._id,
+        },
       },
-    });
-    res.json(newCosts);
+      { new: true }
+    );
+    const response = {
+      costs: newCosts,
+      balance: updateUser.balance,
+    };
+    res.json(response);
   } catch (error) {
     res.status(400).send(error.message);
   }
@@ -56,7 +65,14 @@ async function deleteCosts(req, res) {
     if (!deletedCosts) {
       return res.status(400).send("Расход не найден");
     }
-    res.status(200).send(`${deletedCosts.description} был успешно удалён`);
+    const updateUser = await User.findByIdAndUpdate(
+      req.user._id,
+      {
+        balance: req.user.balance + deletedCosts.sum,
+      },
+      { new: true }
+    );
+    res.status(200).json({ balance: updateUser.balance });
   } catch (error) {
     res.status(400).send(error.message);
   }

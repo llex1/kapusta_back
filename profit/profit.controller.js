@@ -10,7 +10,7 @@ require("moment/locale/ru");
 async function addProfit(req, res) {
   try {
     const { body, user } = req;
-        const newProfit = await Profit.create({
+    const newProfit = await Profit.create({
       date: body.date,
       month: body.month,
       description: body.description,
@@ -18,12 +18,21 @@ async function addProfit(req, res) {
       sum: body.sum,
       userId: user._id,
     });
-    await User.findByIdAndUpdate(user._id, {
-      $push: {
-        profit: newProfit._id,
+    const updateUser = await User.findByIdAndUpdate(
+      user._id,
+      {
+        balance: user.balance + body.sum,
+        $push: {
+          profit: newProfit._id,
+        },
       },
-    });
-    res.json(newProfit);
+      { new: true }
+    );
+    const response = {
+      profits: newProfit,
+      balance: updateUser.balance,
+    };
+    res.json(response);
   } catch (error) {
     res.status(400).send(error.message);
   }
@@ -56,11 +65,14 @@ async function deleteProfit(req, res) {
     if (!deletedProfit) {
       return res.status(400).send("Доход не найден");
     }
-    res
-      .status(200)
-      .send(
-        `${deletedProfit.description} за ${deletedProfit.date} был успешно удалён`
-      );
+    const updateUser = await User.findByIdAndUpdate(
+      req.user._id,
+      {
+        balance: req.user.balance - deletedProfit.sum,
+      },
+      { new: true }
+    );
+    res.status(200).json({ balance: updateUser.balance });
   } catch (error) {
     res.status(400).send(error.message);
   }
@@ -121,12 +133,12 @@ async function getProfitByHalfYear(req, res) {
           return acc;
         }
       }, 0);
-      if(forMonths>0){
-      array.push({
-        month: date,
-        sum: forMonths,
-      });
-    }
+      if (forMonths > 0) {
+        array.push({
+          month: date,
+          sum: forMonths,
+        });
+      }
     }
     res.json(array);
   } catch (error) {
