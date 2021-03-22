@@ -15,20 +15,17 @@ const Avatar = require('avatar-builder');
 const fs = require('fs').promises;
 
 class AuthController {
-  PORT = process.env.port || 80;
-
   async registration(req, res, next) {
     const { email, password } = req.body;
+
     try {
+      //!avatar
       const avatar = Avatar.catBuilder(128);
-      const resAvatarCreate = await avatar.create();
-      await fs.writeFile('tmp/avatar.png', resAvatarCreate)
-
-      // avatar.create().then(buffer => fs.writeFile('tmp/avatar.png', buffer)); // записуєм аватар в  tmp
-
+      const resAvatarCreate = await avatar.create(email);
+      await fs.writeFile('tmp/avatar.png', resAvatarCreate);
       const newAvatar = Date.now();
       await fs.rename('tmp/avatar.png', `public/images/${newAvatar}.png`);
-      const newAvtarUrl = `http://localhost:${process.env.port}/images/${newAvatar}.png`;
+      const newAvtarUrl = `http://kapusta.fun/images/${newAvatar}.png`;
 
       const hashedPassword = await bcrypt.hash(password, 10);
       const userToken = uuidv4();
@@ -44,11 +41,12 @@ class AuthController {
       const tokens = await Token.create({
         token: token,
       });
-      // const updUser = await User.findByIdAndUpdate(userId._id, {
-      //   tokenid: tokens._id,
-      // });
+      const updUser = await User.findByIdAndUpdate(userId._id, {
+        tokenid: tokens._id,
+      });
       res.status(201).json({
         jwt: token,
+        avatarURL: newAvtarUrl,
         // user: email,  в роздумі
       });
       next();
@@ -182,6 +180,7 @@ class AuthController {
     }
   }
 
+  //! визначаєм куду зберізати файли avatar які будем завантажувати на сервер
   storage = multer.diskStorage({
     destination: function (req, file, cb) {
       cb(null, 'public/images');
@@ -192,68 +191,6 @@ class AuthController {
     },
   });
   upload = multer({ storage: this.storage });
-
-  async updateUserAvatar(req, res, PORT) {
-    const deleteUrl = req.user.avatarURL.replace(
-      `http://localhost:${PORT}/images/`,
-      '',
-    );
-    switch (true) {
-      case !!req.body.password && !!req.file:
-        const hashedPassword = await bcrypt.hash(req.body.password, 14);
-        if (existsSync(`public/images/${deleteUrl}`)) {
-          fs.unlink(path.join('public/images', deleteUrl));
-        }
-        const updatedPassword = await User.findByIdAndUpdate(
-          req.user._id,
-          {
-            ...req.body,
-            password: hashedPassword,
-            avatarURL: `http://localhost:${PORT}/images/${req.file.filename}`,
-          },
-          { new: true },
-        );
-        return res.status(200).json({
-          avatarURL: `http://localhost:${PORT}/images/${req.file.filename}`,
-        });
-
-      case !!req.body.password:
-        const hashedOnlyPassword = await bcrypt.hash(req.body.password, 14);
-        await User.findByIdAndUpdate(
-          req.user._id,
-          {
-            ...req.body,
-            password: hashedOnlyPassword,
-          },
-          { new: true },
-        );
-        return res.status(200).send('Data password updated');
-
-      case !!req.file:
-        if (existsSync(`public/images/${deleteUrl}`)) {
-          fs.unlink(path.join('public/images', deleteUrl));
-        }
-        await User.findByIdAndUpdate(
-          req.user._id,
-          {
-            ...req.body,
-            avatarURL: `http://localhost:${PORT}/images/${req.file.filename}`,
-          },
-          { new: true },
-        );
-        return res.status(200).json({
-          avatarURL: `http://localhost:${PORT}/images/${req.file.filename}`,
-        });
-
-      default:
-        await User.findByIdAndUpdate(
-          req.user._id,
-          { ...req.body },
-          { new: true },
-        );
-        return res.status(200).send('Data updated');
-    }
-  }
 }
 
 module.exports = new AuthController();
