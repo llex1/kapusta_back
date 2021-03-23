@@ -119,6 +119,7 @@ async function getProfitByHalfYear(req, res) {
   try {
     const {
       params: { profitMonth },
+      user: { _id },
     } = req;
     let array = [];
     const profitByMonth = await Profit.find({ userId: _id });
@@ -127,7 +128,8 @@ async function getProfitByHalfYear(req, res) {
       let date;
       let forMonths = profitByMonth.reduce((acc, el) => {
         if (currentMonth === el.month) {
-          date = moment(`${el.date}`).format("MMMM");
+          date = el.date.split(".");
+          date = `${date[1]}`;
           return acc + el.sum;
         } else {
           return acc;
@@ -135,7 +137,7 @@ async function getProfitByHalfYear(req, res) {
       }, 0);
       if (forMonths > 0) {
         array.push({
-          month: date,
+          month: moment(`${date}`).format("MMMM"),
           sum: forMonths,
         });
       }
