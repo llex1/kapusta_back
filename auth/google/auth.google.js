@@ -8,7 +8,7 @@ const jwt = require("jsonwebtoken");
 function GoogleAuth(req, res) {
   const stringifiedParams = queryString.stringify({
     client_id: process.env.GOOGLE_CLIENT_ID,
-    redirect_uri: `${process.env.BASE_URL}/auth/google-redirect`,
+    redirect_uri: `${process.env.BASE_URL}/api/auth/google-redirect`,
     scope: ["https://www.googleapis.com/auth/userinfo.email", "https://www.googleapis.com/auth/userinfo.profile"].join(
       " "
     ), // space seperated string
@@ -31,7 +31,7 @@ async function GoogleAuthRedirect(req, res) {
     data: {
       client_id: process.env.GOOGLE_CLIENT_ID,
       client_secret: process.env.GOOGLE_CLIENT_SECRET,
-      redirect_uri: `${process.env.BASE_URL}/auth/google-redirect`,
+      redirect_uri: `${process.env.BASE_URL}/api/auth/google-redirect`,
       grant_type: "authorization_code",
       code,
     },
@@ -53,7 +53,7 @@ async function GoogleAuthRedirect(req, res) {
   } else {
     token = GoogleRegister(userData.data.email);
   }
-  token.then((data) => res.redirect(`http://localhost:3000?token=${data}`));
+  token.then((data) => res.redirect(`http://kapusta.fun?token=${data}`));
 }
 async function GoogleLogin(email) {
   const user = await User.findOne({
